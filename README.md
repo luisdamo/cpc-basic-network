@@ -4,7 +4,7 @@ git init
 git add README.md
 git commit -m "first commit"
 git branch -M main
-git remote add origin https://github.com/luisdamo/cpc-basic-network.git
+git remote add cpc-basic-network https://github.com/luisdamo/cpc-basic-network.git
 git push -u origin main
 # Repositorio hyperledger - actualización
 git add .
@@ -65,12 +65,17 @@ peer chaincode list -C main --instantiated
 
 ### Instalamos el chaincode
 peer chaincode install -n programa -p github.com -v 1.0
-
+peer chaincode install -n fabcar -p github.com -v 1.0
 ### Instanciamos el chaincode
 peer chaincode instantiate -C main -n programa -v 1.0 -c '{"Args":[""]}'
-
+peer chaincode instantiate -C main -n fabcar -v 1.0 -c '{"Args":[""]}'
 ### Invocamos el metodo set
 peer chaincode invoke -C main -n programa -c '{"Args":["set", "id_1", "valor_1"]}'
-
+peer chaincode invoke -C main -n fabcar -c '{"Args":["queryCar", "CAR1"]}'
 ### Invocamos el metodo get
 peer chaincode query -C main -n programa -c '{"Args":["get", "id_1"]}'
+peer chaincode query -C main -n fabcar -c '{"Args":["queryCar", "CAR1"]}'
+### Invocamos el metodo initLedger
+peer chaincode invoke -C main -n fabcar -c '{"function":"initLedger","Args":[]}'
+### queryAllCars
+peer chaincode query -C main -n fabcar -c '{"Args":["queryAllCars"]}'
