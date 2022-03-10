@@ -65,21 +65,26 @@ func (s *SmartContract) Init(APIstub shim.ChaincodeStubInterface) sc.Response {
 func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response {
 
 	// Retrieve the requested Smart Contract function and arguments
-	function, args := APIstub.GetFunctionAndParameters()
+	fn, args := APIstub.GetFunctionAndParameters()
+	fmt.Println("Nombre function:", fn, "Parametros:", args)
 	// Route to the appropriate handler function to interact with the ledger appropriately
-	if function == "queryCar" {
-		return s.queryCar(APIstub, args)
-	} else if function == "initLedger" {
-		return s.initLedger(APIstub)
-	} else if function == "createCar" {
-		return s.createCar(APIstub, args)
-	} else if function == "queryAllCars" {
-		return s.queryAllCars(APIstub)
-	} else if function == "changeCarOwner" {
-		return s.changeCarOwner(APIstub, args)
-	}
 
-	return shim.Error("Invalid Smart Contract function name.")
+	switch fn {
+	case "queryCar":
+		return s.queryCar(APIstub, args)
+	case "initLedger":
+		return s.initLedger(APIstub)
+	case "createCar":
+		return s.createCar(APIstub, args)
+	case "queryAllCars":
+		return s.queryAllCars(APIstub)
+	case "changeCarOwner":
+		return s.changeCarOwner(APIstub, args)
+	default:
+		return shim.Error("la funcion solicitada no existe: " + fn)
+	}
+	return shim.Success(nil)
+
 }
 
 func (s *SmartContract) queryCar(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
@@ -199,6 +204,6 @@ func main() {
 	// Create a new Smart Contract
 	err := shim.Start(new(SmartContract))
 	if err != nil {
-		fmt.Printf("Error creating new Smart Contract: %s", err)
+		fmt.Printf("Error creating new Smart Contract fabcar: %s", err)
 	}
 }

@@ -71,10 +71,19 @@ peer chaincode instantiate -C main -n programa -v 1.0 -c '{"Args":[""]}'
 peer chaincode instantiate -C main -n fabcar -v 1.0 -c '{"Args":[""]}'
 ### Invocamos el metodo set
 peer chaincode invoke -C main -n programa -c '{"Args":["set", "id_1", "valor_1"]}'
-peer chaincode invoke -C main -n fabcar -c '{"Args":["queryCar", "CAR1"]}'
 ### Invocamos el metodo get
 peer chaincode query -C main -n programa -c '{"Args":["get", "id_1"]}'
-peer chaincode query -C main -n fabcar -c '{"Args":["queryCar", "CAR1"]}'
+### fabcar Invocamos el metodo initLedger
+peer chaincode invoke -C main -n fabcar -c '{"Args":["initLedger", "id_1", "valor_1"]}'
+peer chaincode query -C main -n fabcar -c '{"Function":"initLedger","Args":[]}'
+peer chaincode query -C main -n fabcar -c '{"fn":"initLedger","Args":[]}'
+peer chaincode invoke -C main -n fabcar -c '{"Args":["initLedger", "id_1"]}'
+peer chaincode invoke -C main -n fabcar -c '{"function":"initLedger","Args":["initLedger", "id_1"]}'
+### fabcar Invocamos el metodo queryAllCars
+peer chaincode invoke -C main -n fabcar -c '{"function":"queryAllCars","Args":[]}'
+### fabcar Invocamos el metodo queryCar
+peer chaincode invoke -C main -n fabcar -c '{"function":"queryCar","Args":["queryCar", "CAR1"]}'
+
 ### Invocamos el metodo initLedger
 peer chaincode invoke -C main -n fabcar -c '{"function":"initLedger","Args":[]}'
 ### queryAllCars
