@@ -12,13 +12,13 @@ import (
 type CPCContract1 struct {
 }
 
-// Definimos la estructura CPC que representa la pieza
 type CPC struct {
-	Fabricante  string `json:"Fabricante"`
-	TipoPieza   string `json:"TipoPieza"`
-	Estado      int    `json:"Estado"`
-	Ensamblador string `json:"Ensamblador"`
-	Cliente     string `json:"Cliente"`
+	DMC   string `json:"DMC"`   // DMC: Código Datamatrix identificativo de la pieza
+	TYPE  string `json:"TYPE"`  // TYPE: Identificador del tipo de pieza
+	ST    int    `json:"ST"`    // ST: Valor numérico que representa el estado actual de la pieza (integer)
+	IDMAN string `json:"IDMAN"` // IDMAN: Identificador del fabricante (string)
+	IDASS string `json:"IDASS"` // IDASS: Identificador del ensamblador (string)
+	IDCUS string `json:"IDCUS"` // IDCUS: Identificador del cliente (string)'
 }
 
 func (p *CPCContract1) Init(stub shim.ChaincodeStubInterface) peer.Response {
@@ -37,8 +37,13 @@ func (p *CPCContract1) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 		return functionSet(stub, args)
 	case "initledger":
 		return initLedger(stub)
-	case "getpieza":
-		return getPieza(stub, args)
+	case "leerpieza":
+		return leerPieza(stub, args)
+	case "crearpieza":
+		return crearPieza(stub, args)
+	case "version":
+		nversion := "V 1.2"
+		return shim.Success([]byte(nversion))
 	default:
 		return shim.Error("la funcion solicitada no existe")
 	}
@@ -63,12 +68,13 @@ func functionGet(stub shim.ChaincodeStubInterface, args []string) peer.Response 
 
 func functionSet(stub shim.ChaincodeStubInterface, args []string) peer.Response {
 	// leemos los valores del usuario
+	if len(args) != 2 {
+		return shim.Error("Numero de argumentos incorrecto. Se espera 2")
+	}
+
 	key := args[0]
 	value := args[1]
-	// pregunta: que pasa si args es nulo?
-	// pregunta: que pasa si args, existe pero esta vacio?
-	// pregunta: que pasa si args no tiene los 2 elementos necesarios?
-	// tarea: modifica el codigo para devolver error en los casos anteriores
+
 	err := stub.PutState(key, []byte(value))
 	if err != nil {
 		// codigo asociado a la gestion del error
@@ -79,23 +85,26 @@ func functionSet(stub shim.ChaincodeStubInterface, args []string) peer.Response 
 }
 func initLedger(stub shim.ChaincodeStubInterface) peer.Response {
 	piezas := []CPC{
-		CPC{Fabricante: "Fundiciones A SA", TipoPieza: "CARTER001", Estado: 1, Ensamblador: "Ensamblados A SA", Cliente: "Ford"},
-		CPC{Fabricante: "Fundiciones A SA", TipoPieza: "CARTER024", Estado: 1, Ensamblador: "Ensamblados A SA", Cliente: "Toyota"},
-		CPC{Fabricante: "Fundiciones A SA", TipoPieza: "OILP023", Estado: 1, Ensamblador: "Ensamblados A SA", Cliente: "Audi"},
+		CPC{DMC: "210312CA000001", TYPE: "CARTER001", ST: 1, IDMAN: "Fundiciones A SA", IDASS: "Ensamblados A SA", IDCUS: "Ford"},
+		CPC{DMC: "210312CA000002", TYPE: "CARTER001", ST: 1, IDMAN: "Fundiciones A SA", IDASS: "Ensamblados A SA", IDCUS: "Toyota"},
+		CPC{DMC: "210312OP000003", TYPE: "OILP001", ST: 1, IDMAN: "Fundiciones A SA", IDASS: "Ensamblados A SA", IDCUS: "Audi"},
+		CPC{DMC: "210312OP000004", TYPE: "OILP001", ST: 1, IDMAN: "Fundiciones A SA", IDASS: "Ensamblados A SA", IDCUS: "Ford"},
+		CPC{DMC: "210312GE000005", TYPE: "GEAR001", ST: 1, IDMAN: "Fundiciones A SA", IDASS: "Ensamblados A SA", IDCUS: "Ford"},
+		CPC{DMC: "210312GE000006", TYPE: "GEAR005", ST: 1, IDMAN: "Fundiciones A SA", IDASS: "Ensamblados A SA", IDCUS: "Audi"},
 	}
 
 	i := 0
 	for i < len(piezas) {
 		fmt.Println("i es ", i)
 		piezaAsBytes, _ := json.Marshal(piezas[i])
-		stub.PutState("PIEZA"+strconv.Itoa(i), piezaAsBytes)
-		fmt.Println("Añadida pieza ", piezas[i])
+		stub.PutState(piezas[i].DMC, piezaAsBytes)
+		fmt.Println("Añadida pieza ", piezas[i].DMC)
 		i = i + 1
 	}
 
 	return shim.Success(nil)
 }
-func getPieza(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+func leerPieza(stub shim.ChaincodeStubInterface, args []string) peer.Response {
 
 	if len(args) != 1 {
 		return shim.Error("Numero de argumentos incorrecto. Se espera 1")
@@ -103,6 +112,22 @@ func getPieza(stub shim.ChaincodeStubInterface, args []string) peer.Response {
 
 	piezaAsBytes, _ := stub.GetState(args[0])
 	return shim.Success(piezaAsBytes)
+}
+func crearPieza(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+
+	if len(args) != 6 {
+		return shim.Error("Numero incorrecto de argumentos. Se esperaban 6")
+	}
+	intstate, err := strconv.Atoi(args[2])
+	if err != nil {
+		return shim.Error("Error de conversión de tipos, se esperaba entero")
+	}
+	var pieza = CPC{DMC: args[0], TYPE: args[1], ST: intstate, IDMAN: args[3], IDASS: args[4], IDCUS: args[5]}
+
+	piezaAsBytes, _ := json.Marshal(pieza)
+	stub.PutState(args[0], piezaAsBytes)
+
+	return shim.Success(nil)
 }
 
 // main function starts up the chaincode in the container during instantiate

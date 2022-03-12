@@ -64,32 +64,51 @@ peer chaincode list --installed
 peer chaincode list -C main --instantiated
 
 ### Instalamos el chaincode
-peer chaincode install -n programa -p github.com -v 1.0
-peer chaincode install -n fabcar -p github.com -v 1.0
-peer chaincode install -n cpccontract -p github.com -v 1.0
+peer chaincode install -n cpccontract1 -p github.com -v 1.3
 ### Instanciamos el chaincode
-peer chaincode instantiate -C main -n programa -v 1.0 -c '{"Args":[""]}'
-peer chaincode instantiate -C main -n fabcar -v 1.0 -c '{"Args":[""]}'
-peer chaincode instantiate -C main -n cpccontract -v 1.0 -c '{"Args":[""]}'
+peer chaincode instantiate -C main -n cpccontract1 -v 1.3 -c '{"Args":[""]}'
 ### Verificar el log
 docker logs orderer.example.com
 docker logs peer0.org1.example.com
 ### Invocamos el metodo set
-peer chaincode invoke -C main -n programa -c '{"Args":["set", "id_1", "valor_1"]}'
 peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["set", "id_1", "valor_1"]}'
 ### Invocamos el metodo get
-peer chaincode query -C main -n programa -c '{"Args":["get", "id_1"]}'
 peer chaincode query -C main -n cpccontract1 -c '{"Args":["get", "id_1"]}'
-### fabcar Invocamos el metodo initLedger
-peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["initledger", "id_1", "valor_1"]}'
-### fabcar Invocamos el metodo getpieza
-peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["getpieza", "PIEZA1"]}'
-### fabcar Invocamos el metodo queryAllCars
-peer chaincode invoke -C main -n fabcar -c '{"function":"queryAllCars","Args":[]}'
-### fabcar Invocamos el metodo queryCar
-peer chaincode invoke -C main -n fabcar -c '{"function":"queryCar","Args":["queryCar", "CAR1"]}'
 
-### Invocamos el metodo initLedger
-peer chaincode invoke -C main -n fabcar -c '{"function":"initLedger","Args":[]}'
-### queryAllCars
-peer chaincode query -C main -n fabcar -c '{"Args":["queryAllCars"]}'
+### Invocamos el metodo leerpieza
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["leerpieza", "210312CA000002"]}'
+### Invocamos el metodo crearpieza
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["crearpieza", "210312CA000007","CARTER001","1","Fundiciones B SA","Ensamblados A SA","Seat"]}'
+### Invocamos el metodo version
+Informa de la vesión del contrato
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["version"]}'
+
+## Codigo del contrato
+### Codigo del contrato: Estructura de datos
+Utilizamos como punto de partida el contrato programa utilizado en las practicas de clase  de fabric-samples para escribir
+el contrato cpccontract (car parts contract), representado por la clase Cpc.
+Definimos el array assets para contener la base de datos de activos utilizados por el contrato
+En nuestro caso, representamos piezas de aluminio para automóvil que representaremos por la siguiente estructura:
+    - DMC: Código Datamatrix identificativo de la pieza
+    - TYPE: Identificador del tipo de pieza
+    - ST: Valor numérico que representa el estado actual de la pieza (integer)
+    - IDMAN: Identificador del fabricante (string)
+    - IDASS: Identificador del ensamblador (string)
+    - IDCUS: Identificador del cliente (string)'
+### Codigo del contrato: función initledger
+Genera 6 piezas para pruebas
+Inicializa el ledger con piezas para pruebas
+### Invocar función initledger
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["initledger"]}'
+### Invocamos el metodo leerpieza
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["leerpieza", "210312CA000002"]}'
+### Codigo del contrato: función crearpieza
+Genera una pieza con la estructura CPC con los argumentos pasados como parámetros
+pieza = CPC{DMC: args[0], TYPE: args[1], ST: intstate, IDMAN: args[3], IDASS: args[4], IDCUS: args[5]}
+### Invocar función crearpieza
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["crearpieza", "210312CA000007","CARTER001","1","Fundiciones B SA","Ensamblados A SA","Seat"]}'
+
+## Compilación del programa del contrato
+En la carpeta: cpc-basic-network/chaincode/src/github.com/sc
+Ejecutamos el comando: 
+go build cpccontract1.go
