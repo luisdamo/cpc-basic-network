@@ -66,19 +66,24 @@ peer chaincode list -C main --instantiated
 ### Instalamos el chaincode
 peer chaincode install -n programa -p github.com -v 1.0
 peer chaincode install -n fabcar -p github.com -v 1.0
+peer chaincode install -n cpccontract -p github.com -v 1.0
 ### Instanciamos el chaincode
 peer chaincode instantiate -C main -n programa -v 1.0 -c '{"Args":[""]}'
 peer chaincode instantiate -C main -n fabcar -v 1.0 -c '{"Args":[""]}'
+peer chaincode instantiate -C main -n cpccontract -v 1.0 -c '{"Args":[""]}'
+### Verificar el log
+docker logs orderer.example.com
+docker logs peer0.org1.example.com
 ### Invocamos el metodo set
 peer chaincode invoke -C main -n programa -c '{"Args":["set", "id_1", "valor_1"]}'
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["set", "id_1", "valor_1"]}'
 ### Invocamos el metodo get
 peer chaincode query -C main -n programa -c '{"Args":["get", "id_1"]}'
+peer chaincode query -C main -n cpccontract1 -c '{"Args":["get", "id_1"]}'
 ### fabcar Invocamos el metodo initLedger
-peer chaincode invoke -C main -n fabcar -c '{"Args":["initLedger", "id_1", "valor_1"]}'
-peer chaincode query -C main -n fabcar -c '{"Function":"initLedger","Args":[]}'
-peer chaincode query -C main -n fabcar -c '{"fn":"initLedger","Args":[]}'
-peer chaincode invoke -C main -n fabcar -c '{"Args":["initLedger", "id_1"]}'
-peer chaincode invoke -C main -n fabcar -c '{"function":"initLedger","Args":["initLedger", "id_1"]}'
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["initledger", "id_1", "valor_1"]}'
+### fabcar Invocamos el metodo getpieza
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["getpieza", "PIEZA1"]}'
 ### fabcar Invocamos el metodo queryAllCars
 peer chaincode invoke -C main -n fabcar -c '{"function":"queryAllCars","Args":[]}'
 ### fabcar Invocamos el metodo queryCar
