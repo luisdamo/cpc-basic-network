@@ -47,7 +47,7 @@ func (p *CPCContract1) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 	case "leerpiezas":
 		return leerPiezas(stub)
 	case "version":
-		nversion := "V 1.5"
+		nversion := "V 1.6"
 		return shim.Success([]byte(nversion))
 	default:
 		return shim.Error("la funcion solicitada no existe")

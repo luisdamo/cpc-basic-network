@@ -64,10 +64,10 @@ peer chaincode list --installed
 peer chaincode list -C main --instantiated
 
 ### Instalamos el chaincode
-peer chaincode install -n cpccontract1 -p github.com -v 1.4
+peer chaincode install -n cpccontract1 -p github.com -v 1.6
 
 ### Instanciamos el chaincode
-peer chaincode instantiate -C main -n cpccontract1 -v 1.4 -c '{"Args":[""]}'
+peer chaincode instantiate -C main -n cpccontract1 -v 1.6 -c '{"Args":[""]}'
 ### Verificar el log
 docker logs orderer.example.com
 docker logs peer0.org1.example.com
@@ -84,6 +84,8 @@ peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["leerpieza", "210312C
 peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["leerpieza", "210312CA000001"]}'
 ### Invocamos el metodo leerpiezas
 peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["leerpiezas"]}'
+### Invocamos el metodo actualizarestadopieza
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["actualizarestadopieza","210312CA000001","2"]}'
 ### Invocamos el metodo version
 Informa de la vesión del contrato
 peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["version"]}'
