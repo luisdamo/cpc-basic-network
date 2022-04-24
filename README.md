@@ -120,9 +120,3 @@ En la carpeta: cpc-basic-network/chaincode/src/github.com/sc
 Ejecutamos el comando: 
 go build cpccontract1.go
 
-### Instalación de node-red
-npm install -g --unsafe-perm node-red@1.2
-Una vez instalado, podemos acceder a la interfase vía web:
-http://localhost:1880
-Instalar componentes para fabric
-npm i node-red-contrib-fabric
