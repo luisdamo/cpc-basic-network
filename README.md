@@ -112,3 +112,6 @@ peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["crearpieza", "210312
 En la carpeta: cpc-basic-network/chaincode/src/github.com/sc
 Ejecutamos el comando: 
 go build cpccontract1.go
+
+### Instalación de node-red
+docker run -it -p 1880:1880 --name mynodered nodered/node-red
