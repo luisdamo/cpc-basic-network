@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -41,8 +42,12 @@ func (p *CPCContract1) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 		return leerPieza(stub, args)
 	case "crearpieza":
 		return crearPieza(stub, args)
+	case "actualizarestadopieza":
+		return actualizarEstadoPieza(stub, args)
+	case "leerpiezas":
+		return leerPiezas(stub)
 	case "version":
-		nversion := "V 1.2"
+		nversion := "V 1.5"
 		return shim.Success([]byte(nversion))
 	default:
 		return shim.Error("la funcion solicitada no existe")
@@ -125,6 +130,63 @@ func crearPieza(stub shim.ChaincodeStubInterface, args []string) peer.Response {
 	var pieza = CPC{DMC: args[0], TYPE: args[1], ST: intstate, IDMAN: args[3], IDASS: args[4], IDCUS: args[5]}
 
 	piezaAsBytes, _ := json.Marshal(pieza)
+	stub.PutState(args[0], piezaAsBytes)
+
+	return shim.Success(nil)
+}
+func leerPiezas(stub shim.ChaincodeStubInterface) peer.Response {
+	//LLamamos a GetStateByRange con las claves inicial y final en blanco, de manera que nos devuelva todos los registros
+	iniKey := ""
+	finKey := ""
+
+	resultsIterator, err := stub.GetStateByRange(iniKey, finKey)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+	defer resultsIterator.Close()
+
+	// resultJSON array que contiene los resultados
+	var resultJSON bytes.Buffer
+	resultJSON.WriteString("[")
+	bFlagElementoEscrito := false
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+		// Añadimos una coma antes de cada elemento, excepto si es el primero
+		if bFlagElementoEscrito == true {
+			resultJSON.WriteString(",")
+		}
+		resultJSON.WriteString("{\"Key\":")
+		resultJSON.WriteString("{\"")
+		resultJSON.WriteString(queryResponse.Key)
+		resultJSON.WriteString("{\"")
+		resultJSON.WriteString("{\"Record\":")
+		// Value tiene formato JSON, lo escribimos directamente
+		resultJSON.WriteString(string(queryResponse.Value))
+		resultJSON.WriteString("}")
+		bFlagElementoEscrito = true
+
+	}
+	resultJSON.WriteString("]")
+	fmt.Printf("- leerPiezas:\n%s\n", resultJSON.String())
+	return shim.Success(resultJSON.Bytes())
+}
+func actualizarEstadoPieza(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+
+	if len(args) != 2 {
+		return shim.Error("Numero incorrecto de argumentos. Se esperaban 2")
+	}
+	intstate, err := strconv.Atoi(args[1])
+	if err != nil {
+		return shim.Error("Error de conversión de tipos, se esperaba entero")
+	}
+	piezaAsBytes, _ := stub.GetState(args[0])
+	var pieza = CPC{}
+	json.Unmarshal(piezaAsBytes, &pieza)
+	pieza.ST = intstate
+	piezaAsBytes, _ = json.Marshal(pieza)
 	stub.PutState(args[0], piezaAsBytes)
 
 	return shim.Success(nil)
