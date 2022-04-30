@@ -35,6 +35,40 @@ mkdir config
 ### Renombrar archivos de claves a key
 ./update_keynames.sh
 
+## Codigo del contrato
+### Codigo del contrato: Estructura de datos
+Utilizamos como punto de partida el contrato programa utilizado en las practicas de clase  de fabric-samples para escribir
+el contrato cpccontract (car parts contract), representado por la clase Cpc.
+Definimos el array assets para contener la base de datos de activos utilizados por el contrato
+En nuestro caso, representamos piezas de aluminio para automóvil que representaremos por la siguiente estructura:
+- DMC: Código Datamatrix identificativo de la pieza
+- TYPE: Identificador del tipo de pieza
+- ST: Valor numérico que representa el estado actual de la pieza (integer)
+- IDMAN: Identificador del fabricante (string)
+- IDASS: Identificador del ensamblador (string)
+- IDCUS: Identificador del cliente (string)'
+### Codigo del contrato: función initledger
+Genera 6 piezas para pruebas
+Inicializa el ledger con piezas para pruebas
+### Invocar función initledger
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["initledger"]}'
+### Invocamos el metodo leerpieza
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["leerpieza", "210312CA000002"]}'
+### Codigo del contrato: función crearpieza
+Genera una pieza con la estructura CPC con los argumentos pasados como parámetros
+pieza = CPC{DMC: args[0], TYPE: args[1], ST: intstate, IDMAN: args[3], IDASS: args[4], IDCUS: args[5]}
+### Invocar función crearpieza
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["crearpieza", "210312CA000007","CARTER001","1","Fundiciones B SA","Ensamblados A SA","Seat"]}'
+
+## Compilación del programa del contrato
+En la carpeta: cpc-basic-network/chaincode/src/github.com/sc
+Ejecutamos el comando: 
+go build cpccontract1.go
+
+
+
+
+
 ### Levantamos el contenedor orderer
 En la linea 64 de docker-compose.yml introducir la red de docker manualmente, ver con
 docker network ls
@@ -78,45 +112,17 @@ peer chaincode query -C main -n cpccontract1 -c '{"Args":["get", "id_1"]}'
 ### Invocamos el metodo initledger
 peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["initledger"]}'
 ### Invocamos el metodo crearpieza
-peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["crearpieza", "210312CA000007","CARTER001","1","Fundiciones B SA","Ensamblados A SA","Seat"]}'
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["crearpieza", "210430CA000007","CARTER001","1","Fundiciones B SA","Ensamblados A SA","Seat"]}'
 ### Invocamos el metodo leerpieza
-peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["leerpieza", "210312CA000007"]}'
-peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["leerpieza", "210312CA000001"]}'
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["leerpieza", "210430CA000007"]}'
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["leerpieza", "210430CA000001"]}'
 ### Invocamos el metodo leerpiezas
 peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["leerpiezas"]}'
 ### Invocamos el metodo actualizarestadopieza
-peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["actualizarestadopieza","210312CA000001","2"]}'
+peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["actualizarestadopieza","210430CA000007","2"]}'
 ### Invocamos el metodo version
 Informa de la vesión del contrato
 peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["version"]}'
 
-## Codigo del contrato
-### Codigo del contrato: Estructura de datos
-Utilizamos como punto de partida el contrato programa utilizado en las practicas de clase  de fabric-samples para escribir
-el contrato cpccontract (car parts contract), representado por la clase Cpc.
-Definimos el array assets para contener la base de datos de activos utilizados por el contrato
-En nuestro caso, representamos piezas de aluminio para automóvil que representaremos por la siguiente estructura:
-- DMC: Código Datamatrix identificativo de la pieza
-- TYPE: Identificador del tipo de pieza
-- ST: Valor numérico que representa el estado actual de la pieza (integer)
-- IDMAN: Identificador del fabricante (string)
-- IDASS: Identificador del ensamblador (string)
-- IDCUS: Identificador del cliente (string)'
-### Codigo del contrato: función initledger
-Genera 6 piezas para pruebas
-Inicializa el ledger con piezas para pruebas
-### Invocar función initledger
-peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["initledger"]}'
-### Invocamos el metodo leerpieza
-peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["leerpieza", "210312CA000002"]}'
-### Codigo del contrato: función crearpieza
-Genera una pieza con la estructura CPC con los argumentos pasados como parámetros
-pieza = CPC{DMC: args[0], TYPE: args[1], ST: intstate, IDMAN: args[3], IDASS: args[4], IDCUS: args[5]}
-### Invocar función crearpieza
-peer chaincode invoke -C main -n cpccontract1 -c '{"Args":["crearpieza", "210312CA000007","CARTER001","1","Fundiciones B SA","Ensamblados A SA","Seat"]}'
 
-## Compilación del programa del contrato
-En la carpeta: cpc-basic-network/chaincode/src/github.com/sc
-Ejecutamos el comando: 
-go build cpccontract1.go
 
